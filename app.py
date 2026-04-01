@@ -1,11 +1,14 @@
-
 import os
-import io
 import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
 
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model", "model.pkl")
+ENCODER_PATH = os.path.join(BASE_DIR, "model", "label_encoder.pkl")
+DATA_PATH = os.path.join(BASE_DIR, "data.csv")
 
 st.set_page_config(
     page_title="Prediksi Status Mahasiswa",
@@ -13,10 +16,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
-MODEL_PATH = "model/model.pkl"
-ENCODER_PATH = "model/label_encoder.pkl"
-DATA_PATH = "data.csv"
 
 FEATURE_COLUMNS = [
     "Marital_status",
@@ -264,10 +263,14 @@ def load_artifacts():
 def load_reference_data():
     if not os.path.exists(DATA_PATH):
         return None
-    try:
-        return pd.read_csv(DATA_PATH, sep=";")
-    except Exception:
-        return None
+    for sep in [";", ","]:
+        try:
+            df = pd.read_csv(DATA_PATH, sep=sep)
+            if all(col in df.columns for col in FEATURE_COLUMNS):
+                return df
+        except Exception:
+            continue
+    return None
 
 
 def get_feature_specs(df_ref):
@@ -275,10 +278,12 @@ def get_feature_specs(df_ref):
     if df_ref is None:
         for col in FEATURE_COLUMNS:
             default_value = FALLBACK_DEFAULTS[col]
+            default_num = float(default_value)
+            upper = max(10.0, abs(default_num) * 2)
             specs[col] = {
                 "default": default_value,
-                "min": 0 if default_value >= 0 else -10,
-                "max": max(10, int(default_value * 2) if isinstance(default_value, (int, float)) else 10),
+                "min": 0 if default_num >= 0 else -10,
+                "max": int(upper) if isinstance(default_value, int) else float(upper),
                 "options": list(YES_NO_FIELDS[col].keys()) if col in YES_NO_FIELDS else None,
                 "is_int": isinstance(default_value, int),
             }
@@ -286,12 +291,15 @@ def get_feature_specs(df_ref):
 
     for col in FEATURE_COLUMNS:
         series = df_ref[col]
+        is_int = pd.api.types.is_integer_dtype(series)
+        default_val = int(series.median()) if is_int else float(series.median())
+        options = sorted(series.dropna().unique().tolist()) if series.nunique() <= 20 else None
         specs[col] = {
-            "default": float(series.median()) if str(series.dtype).startswith("float") else int(series.median()),
-            "min": float(series.min()),
-            "max": float(series.max()),
-            "options": sorted(series.dropna().unique().tolist()) if series.nunique() <= 20 else None,
-            "is_int": str(series.dtype).startswith("int"),
+            "default": default_val,
+            "min": int(series.min()) if is_int else float(series.min()),
+            "max": int(series.max()) if is_int else float(series.max()),
+            "options": options,
+            "is_int": is_int,
         }
     return specs
 
@@ -303,33 +311,37 @@ def build_preset(name, specs):
         return base
 
     if name == "Risiko Dropout Tinggi":
-        base.update({
-            "Debtor": 1,
-            "Tuition_fees_up_to_date": 0,
-            "Scholarship_holder": 0,
-            "Age_at_enrollment": 28,
-            "Curricular_units_1st_sem_approved": 2,
-            "Curricular_units_1st_sem_grade": 9.8,
-            "Curricular_units_2nd_sem_approved": 1,
-            "Curricular_units_2nd_sem_grade": 8.7,
-            "Curricular_units_1st_sem_without_evaluations": 2,
-            "Curricular_units_2nd_sem_without_evaluations": 2,
-        })
+        base.update(
+            {
+                "Debtor": 1,
+                "Tuition_fees_up_to_date": 0,
+                "Scholarship_holder": 0,
+                "Age_at_enrollment": 28,
+                "Curricular_units_1st_sem_approved": 2,
+                "Curricular_units_1st_sem_grade": 9.8,
+                "Curricular_units_2nd_sem_approved": 1,
+                "Curricular_units_2nd_sem_grade": 8.7,
+                "Curricular_units_1st_sem_without_evaluations": 2,
+                "Curricular_units_2nd_sem_without_evaluations": 2,
+            }
+        )
         return base
 
     if name == "Potensi Graduate Tinggi":
-        base.update({
-            "Debtor": 0,
-            "Tuition_fees_up_to_date": 1,
-            "Scholarship_holder": 1,
-            "Age_at_enrollment": 19,
-            "Curricular_units_1st_sem_approved": 7,
-            "Curricular_units_1st_sem_grade": 14.5,
-            "Curricular_units_2nd_sem_approved": 7,
-            "Curricular_units_2nd_sem_grade": 14.7,
-            "Curricular_units_1st_sem_without_evaluations": 0,
-            "Curricular_units_2nd_sem_without_evaluations": 0,
-        })
+        base.update(
+            {
+                "Debtor": 0,
+                "Tuition_fees_up_to_date": 1,
+                "Scholarship_holder": 1,
+                "Age_at_enrollment": 19,
+                "Curricular_units_1st_sem_approved": 7,
+                "Curricular_units_1st_sem_grade": 14.5,
+                "Curricular_units_2nd_sem_approved": 7,
+                "Curricular_units_2nd_sem_grade": 14.7,
+                "Curricular_units_1st_sem_without_evaluations": 0,
+                "Curricular_units_2nd_sem_without_evaluations": 0,
+            }
+        )
         return base
 
     return base
@@ -343,7 +355,8 @@ def render_field(field_name, specs, preset_values):
     if field_name in YES_NO_FIELDS:
         option_map = YES_NO_FIELDS[field_name]
         options = list(option_map.keys())
-        default_index = options.index(int(default_value)) if int(default_value) in options else 0
+        default_key = int(default_value)
+        default_index = options.index(default_key) if default_key in options else 0
         chosen = st.selectbox(
             label,
             options=options,
@@ -391,15 +404,29 @@ def render_field(field_name, specs, preset_values):
     )
 
 
+def safe_label_names(label_encoder, n_classes=None):
+    if hasattr(label_encoder, "classes_"):
+        return list(label_encoder.classes_)
+    if n_classes is not None:
+        return [str(i) for i in range(n_classes)]
+    return ["Dropout", "Enrolled", "Graduate"]
+
+
 def make_prediction(model, label_encoder, input_dict):
     input_df = pd.DataFrame([input_dict])[FEATURE_COLUMNS]
     predicted_idx = model.predict(input_df)[0]
-    predicted_label = label_encoder.inverse_transform([predicted_idx])[0]
+    try:
+        predicted_label = label_encoder.inverse_transform([predicted_idx])[0]
+    except Exception:
+        predicted_label = str(predicted_idx)
 
     probabilities = None
     if hasattr(model, "predict_proba"):
         proba = model.predict_proba(input_df)[0]
-        classes = label_encoder.inverse_transform(np.arange(len(proba)))
+        try:
+            classes = label_encoder.inverse_transform(np.arange(len(proba)))
+        except Exception:
+            classes = safe_label_names(label_encoder, len(proba))
         probabilities = pd.DataFrame({"Status": classes, "Probabilitas": proba}).sort_values(
             by="Probabilitas", ascending=False
         )
@@ -410,7 +437,7 @@ def make_prediction(model, label_encoder, input_dict):
 def get_dropout_probability(probabilities):
     if probabilities is None:
         return None
-    row = probabilities.loc[probabilities["Status"] == "Dropout", "Probabilitas"]
+    row = probabilities.loc[probabilities["Status"].astype(str) == "Dropout", "Probabilitas"]
     if row.empty:
         return None
     return float(row.iloc[0])
@@ -476,14 +503,10 @@ def render_result(predicted_label, probabilities, input_data):
     with metric_cols[0]:
         st.metric("Prediksi Model", predicted_label)
     with metric_cols[1]:
-        if dropout_prob is not None:
-            st.metric("Probabilitas Dropout", f"{dropout_prob:.1%}")
-        else:
-            st.metric("Probabilitas Dropout", "N/A")
+        st.metric("Probabilitas Dropout", f"{dropout_prob:.1%}" if dropout_prob is not None else "N/A")
     with metric_cols[2]:
         if probabilities is not None:
-            top_prob = probabilities.iloc[0]["Probabilitas"]
-            st.metric("Confidence Tertinggi", f"{top_prob:.1%}")
+            st.metric("Confidence Tertinggi", f"{float(probabilities.iloc[0]['Probabilitas']):.1%}")
         else:
             st.metric("Confidence Tertinggi", "N/A")
 
@@ -498,15 +521,24 @@ def render_result(predicted_label, probabilities, input_data):
 
     st.subheader("Rekomendasi Tindak Lanjut")
     for idx, rec in enumerate(recommendation_text(input_data, dropout_prob), start=1):
-        st.markdown(
-            f'<div class="tip-box"><strong>{idx}.</strong> {rec}</div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown(f'<div class="tip-box"><strong>{idx}.</strong> {rec}</div>', unsafe_allow_html=True)
 
 
 def validate_batch_file(batch_df):
     missing_cols = [col for col in FEATURE_COLUMNS if col not in batch_df.columns]
     return missing_cols
+
+
+def read_uploaded_csv(uploaded_file):
+    raw_bytes = uploaded_file.getvalue()
+    for sep in [",", ";"]:
+        try:
+            df = pd.read_csv(pd.io.common.BytesIO(raw_bytes), sep=sep)
+            if len(df.columns) > 1:
+                return df
+        except Exception:
+            continue
+    raise ValueError("File CSV tidak dapat dibaca. Pastikan file valid dan delimiter sesuai.")
 
 
 def main():
@@ -549,11 +581,14 @@ def main():
             """
         )
 
+    model, label_encoder = None, None
+    artifact_error = None
     try:
         model, label_encoder = load_artifacts()
     except Exception as err:
+        artifact_error = err
         st.error(f"Gagal memuat artefak model: {err}")
-        st.stop()
+        st.info("Pastikan dependency model sudah terinstal dan file model tersedia. Jika model Anda dibuat dengan XGBoost, instal package xgboost lalu jalankan ulang aplikasi.")
 
     df_ref = load_reference_data()
     specs = get_feature_specs(df_ref)
@@ -565,45 +600,47 @@ def main():
         st.subheader("Form Prediksi Individu")
         st.caption("Isi data mahasiswa berikut, lalu klik tombol prediksi.")
 
-        with st.form("prediction_form", clear_on_submit=False):
-            input_data = {}
-            for section_name, fields in SECTION_GROUPS.items():
-                with st.expander(section_name, expanded=section_name == "Profil dan Latar Belakang"):
-                    cols = st.columns(3)
-                    for idx, field in enumerate(fields):
-                        with cols[idx % 3]:
-                            input_data[field] = render_field(field, specs, preset_values)
+        if model is None or label_encoder is None:
+            st.warning("Prediksi individu belum dapat digunakan karena artefak model belum berhasil dimuat.")
+        else:
+            with st.form("prediction_form", clear_on_submit=False):
+                input_data = {}
+                for section_name, fields in SECTION_GROUPS.items():
+                    with st.expander(section_name, expanded=section_name == "Profil dan Latar Belakang"):
+                        cols = st.columns(3)
+                        for idx, field in enumerate(fields):
+                            with cols[idx % 3]:
+                                input_data[field] = render_field(field, specs, preset_values)
 
-            submitted = st.form_submit_button("🔍 Prediksi Sekarang", use_container_width=True)
+                submitted = st.form_submit_button("🔍 Prediksi Sekarang", use_container_width=True)
 
-        st.markdown("### Ringkasan Input Penting")
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.markdown(
-                f'<div class="mini-card"><h4>Tuition Fees</h4><div class="big-number">{"Yes" if input_data["Tuition_fees_up_to_date"] == 1 else "No"}</div></div>',
-                unsafe_allow_html=True,
-            )
-        with c2:
-            st.markdown(
-                f'<div class="mini-card"><h4>Debtor</h4><div class="big-number">{"Yes" if input_data["Debtor"] == 1 else "No"}</div></div>',
-                unsafe_allow_html=True,
-            )
-        with c3:
-            st.markdown(
-                f'<div class="mini-card"><h4>Approved 1st Sem</h4><div class="big-number">{input_data["Curricular_units_1st_sem_approved"]}</div></div>',
-                unsafe_allow_html=True,
-            )
-        with c4:
-            st.markdown(
-                f'<div class="mini-card"><h4>Approved 2nd Sem</h4><div class="big-number">{input_data["Curricular_units_2nd_sem_approved"]}</div></div>',
-                unsafe_allow_html=True,
-            )
+            st.markdown("### Ringkasan Input Penting")
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                st.markdown(
+                    f'<div class="mini-card"><h4>Tuition Fees</h4><div class="big-number">{"Yes" if input_data["Tuition_fees_up_to_date"] == 1 else "No"}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with c2:
+                st.markdown(
+                    f'<div class="mini-card"><h4>Debtor</h4><div class="big-number">{"Yes" if input_data["Debtor"] == 1 else "No"}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with c3:
+                st.markdown(
+                    f'<div class="mini-card"><h4>Approved 1st Sem</h4><div class="big-number">{input_data["Curricular_units_1st_sem_approved"]}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with c4:
+                st.markdown(
+                    f'<div class="mini-card"><h4>Approved 2nd Sem</h4><div class="big-number">{input_data["Curricular_units_2nd_sem_approved"]}</div></div>',
+                    unsafe_allow_html=True,
+                )
 
-        if submitted:
-            predicted_label, probabilities, _ = make_prediction(model, label_encoder, input_data)
-            st.divider()
-            render_result(predicted_label, probabilities, input_data)
-
+            if submitted:
+                predicted_label, probabilities, _ = make_prediction(model, label_encoder, input_data)
+                st.divider()
+                render_result(predicted_label, probabilities, input_data)
     with tab2:
         st.subheader("Prediksi Batch")
         st.caption("Unggah file CSV yang memiliki kolom fitur yang sama dengan data training.")
@@ -612,7 +649,7 @@ def main():
 
         if uploaded_file is not None:
             try:
-                batch_df = pd.read_csv(uploaded_file)
+                batch_df = read_uploaded_csv(uploaded_file)
                 missing_cols = validate_batch_file(batch_df)
 
                 if missing_cols:
@@ -621,11 +658,17 @@ def main():
                 else:
                     batch_input = batch_df[FEATURE_COLUMNS].copy()
                     preds = model.predict(batch_input)
-                    batch_df["Prediksi_Status"] = label_encoder.inverse_transform(preds)
+                    try:
+                        batch_df["Prediksi_Status"] = label_encoder.inverse_transform(preds)
+                    except Exception:
+                        batch_df["Prediksi_Status"] = preds.astype(str)
 
                     if hasattr(model, "predict_proba"):
                         probas = model.predict_proba(batch_input)
-                        classes = label_encoder.inverse_transform(np.arange(probas.shape[1]))
+                        try:
+                            classes = label_encoder.inverse_transform(np.arange(probas.shape[1]))
+                        except Exception:
+                            classes = safe_label_names(label_encoder, probas.shape[1])
                         for idx, cls in enumerate(classes):
                             batch_df[f"Prob_{cls}"] = probas[:, idx]
 
@@ -671,18 +714,24 @@ def main():
 
         st.markdown("#### Daftar fitur model")
         feature_df = pd.DataFrame(
-            [{"Kelompok": group, "Feature": DISPLAY_NAMES.get(feature, feature)}
-             for group, features in SECTION_GROUPS.items()
-             for feature in features]
+            [
+                {"Kelompok": group, "Feature": DISPLAY_NAMES.get(feature, feature)}
+                for group, features in SECTION_GROUPS.items()
+                for feature in features
+            ]
         )
         st.dataframe(feature_df, use_container_width=True, hide_index=True)
 
         st.markdown("#### Kelas prediksi")
-        st.write(list(getattr(label_encoder, "classes_", ["Dropout", "Enrolled", "Graduate"])))
+        st.write(safe_label_names(label_encoder))
+        if artifact_error is not None:
+            st.caption("Catatan: daftar kelas di atas menggunakan fallback default karena artefak model belum berhasil dimuat.")
 
         if df_ref is not None:
             st.markdown("#### Referensi data")
-            st.write(f"Dataset referensi berhasil dimuat dengan bentuk: **{df_ref.shape[0]} baris × {df_ref.shape[1]} kolom**")
+            st.write(
+                f"Dataset referensi berhasil dimuat dengan bentuk: **{df_ref.shape[0]} baris × {df_ref.shape[1]} kolom**"
+            )
         else:
             st.warning("File data.csv tidak ditemukan. Aplikasi tetap berjalan menggunakan fallback default value.")
 
