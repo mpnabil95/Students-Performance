@@ -1,4 +1,4 @@
-# Proyek Akhir: Menyelesaikan Permasalahan Perusahaan "Jaya Jaya Maju"
+# Proyek Akhir: Menyelesaikan Permasalahan "Jaya Jaya Institut"
 
 ## Business Understanding
 
@@ -66,9 +66,31 @@ Proyek ini menggunakan Metabase versi v0.59.4. Untuk menjalankan dashboard mengg
   
   Catatan: Untuk pengguna Linux/Mac, ganti ```"%cd%"``` dengan ```$(pwd)```
 
-- Setelah container Docker berhasil berjalan, anda dapat langsung melihat dashboard tanpa perlu melakukan login dengan membuka tautan localhost publik berikut di browser:
-http://localhost:3000/public/dashboard/883b448e-07b2-4366-adec-4100575bb77b 
+- Setelah container Docker berhasil berjalan, Anda harus mengimpor database dashboard terlebih dahulu dengan menjalankan langkah berikut:
+  - Pertama, klik container yang telah dijalankan tadi di Docker
+  - Klik kolom ```Files```
+  - Arahkan kursor ke folder ```app```, kemuadian klik kanan pada mouse
+  - Klik bagian ```Import```
 
+  <div align="center">
+    <img width="400" height="285" alt="Image1" src="https://i.ibb.co.com/5g1YH4dm/Cuplikan-layar-2026-04-03-161500.png" />
+  </div>
+    
+  - Pilih folder ```jaya-institute_database```
+
+  <div align="center">
+    <img width="400" height="245" alt="Image2" src="https://i.ibb.co.com/4nhr6Xz1/Cuplikan-layar-2026-04-03-164725.png" />
+  </div>
+
+  - Database dashboard kita sudah terimpor jika sudah terlihat seperti gambar berikut 
+
+  <div align="center">
+    <img width="400" height="330" alt="Image3" src="https://i.ibb.co.com/G4xdvZ9N/Cuplikan-layar-2026-04-03-161522.png" />
+  </div>
+
+
+- Setelah database diimpor, Anda dapat langsung melihat dashboard tanpa perlu melakukan login dengan membuka tautan localhost publik berikut di browser:
+http://localhost:3000/public/dashboard/883b448e-07b2-4366-adec-4100575bb77b
 
 ### Cara Menjalankan Prototype Secara Lokal
 
