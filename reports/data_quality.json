@@ -1,0 +1,17 @@
+{
+  "rows": 4424,
+  "columns": 37,
+  "explicit_nulls": 0,
+  "duplicate_rows": 0,
+  "status_counts": {
+    "Graduate": 2209,
+    "Dropout": 1421,
+    "Enrolled": 794
+  },
+  "unknown_parent_qualification": {
+    "Mothers_qualification": 130,
+    "Fathers_qualification": 112
+  },
+  "selected_schema_valid": true,
+  "data_sha256": "a37dbda5555089a8d39b8be6f1a242f68403963a1f81423115c9676c8c7100e9"
+}

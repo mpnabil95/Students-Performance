@@ -1,155 +1,123 @@
-# Proyek Akhir: Menyelesaikan Permasalahan "Jaya Jaya Institut"
+# Student Success — Semester-One Outcome Prediction
 
-## Business Understanding
+Studi kasus Data Science untuk memahami status studi mahasiswa dan membantu prioritas peninjauan menggunakan informasi sampai **akhir semester 1**.
 
-Jaya Jaya Institut merupakan sebuah institusi pendidikan tinggi yang telah berdiri sejak tahun 2000 dan memiliki reputasi yang baik dalam menghasilkan lulusan berkualitas. Meskipun demikian, institusi ini masih menghadapi tantangan serius berupa tingginya jumlah mahasiswa yang tidak menyelesaikan studi atau mengalami dropout.
+**14 fitur · 3 kelas · validasi terpisah · probabilitas terkalibrasi · dashboard Streamlit**
 
-Tingginya angka dropout dapat memberikan dampak negatif bagi institusi, baik dari sisi akademik, operasional, maupun reputasi. Oleh karena itu, pihak institusi membutuhkan solusi berbasis data untuk mendeteksi mahasiswa yang berpotensi dropout sedini mungkin agar dapat diberikan intervensi yang tepat.
+Proyek ini berkembang dari submission Dicoding dengan konteks Jaya Jaya Institut (fiktif). Versi portofolio mempertajam waktu prediksi, memperbaiki evaluasi dan validasi input, serta menyatukan analisis dan prediksi dalam satu aplikasi.
 
-Dalam proyek ini, pendekatan data science digunakan untuk memahami faktor-faktor yang berkaitan dengan status akhir mahasiswa, membangun model machine learning untuk memprediksi status mahasiswa, serta menyediakan dashboard interaktif agar pihak institusi dapat memantau performa mahasiswa secara lebih efektif.
+> Model merupakan demonstrasi prediksi retrospektif. Dataset tidak memiliki tanggal dropout per mahasiswa; hasil tidak membuktikan bahwa setiap prediksi dibuat sebelum kejadian. Enrolled bukan jaminan lulus atau bebas risiko.
 
-### Permasalahan Bisnis
+![Distribusi status studi](reports/figures/status_distribution.png)
 
-Jaya Jaya Institut ingin menjawab beberapa permasalahan utama berikut:  
+## Apa yang dapat dilakukan
 
-1. Faktor apa saja yang paling berkaitan dengan status akhir mahasiswa.
-2. Bagaimana cara mengidentifikasi mahasiswa yang berisiko dropout lebih awal.
-3. Bagaimana menyediakan sarana monitoring yang mudah dipahami oleh pihak institusi.
+- Menjelajahi data historis dengan filter program studi dan usia.
+- Memasukkan profil semester 1 dengan label kategori dan skala yang jelas.
+- Memvalidasi serta memprediksi CSV secara batch; mengunduh hasil dengan source_row.
+- Melihat probabilitas tiga kelas dan satu kategori peninjauan yang konsisten.
+- Memeriksa performa, calibration curve, trade-off peninjauan, dan keterbatasan.
 
-### Cakupan Proyek
+## Desain studi kasus
 
-Proyek ini mencakup beberapa tahapan utama berikut:
+| Aspek | Keputusan |
+|---|---|
+| Target | Dropout / Enrolled / Graduate pada akhir durasi normal program |
+| Skenario | Fitur pendaftaran + hasil semester 1 |
+| Fitur dikeluarkan | Semester 2, status finansial/makro yang timing-nya belum jelas, gender/kebangsaan dan atribut keluarga; usia tetap digunakan |
+| Pemilihan model | Mean macro F1 pada 5-fold CV, hanya data development |
+| Kalibrasi | Sigmoid 3-fold di dalam training |
+| Threshold | Maksimalkan F2 pada policy validation, terpisah dari seleksi model |
+| Output tindakan | Perlu peninjauan / Pemantauan rutin; ditentukan oleh P(Dropout) |
+| Penggunaan | Pendampingan oleh manusia, bukan keputusan akademik otomatis |
 
-1. Melakukan data understanding dan exploratory data analysis untuk memahami pola dalam data mahasiswa.
-2. Mengidentifikasi faktor-faktor utama yang berhubungan dengan status mahasiswa.
-3. Membangun model machine learning multiclass classification untuk memprediksi status mahasiswa ke dalam tiga kategori: Dropout, Enrolled, dan Graduate.
-4. Membuat dashboard interaktif menggunakan Metabase untuk membantu monitoring performa mahasiswa.
-5. Mengembangkan prototype sistem prediksi berbasis Streamlit agar solusi machine learning dapat digunakan secara praktis.
+Detail: [Business case](docs/BUSINESS_CASE.md) · [Data card](docs/DATA_CARD.md) · [Kamus fitur](docs/FEATURE_DICTIONARY.md).
 
-### Persiapan
+## Hasil yang diperoleh
 
-Sumber data: https://raw.githubusercontent.com/mpnabil95/Students-Performance/main/data.csv 
+Model terpilih: **random_forest**, dengan threshold **0.19**.
 
+| Metrik holdout historis (n = 885) | Nilai |
+|---|---:|
+| Accuracy multiclass | 70.85% |
+| Macro F1 | 0.6129 |
+| Weighted F1 | 0.6904 |
+| Recall Dropout pada kebijakan peninjauan | 88.03% |
+| Precision pada kebijakan peninjauan | 54.82% |
+| Proporsi profil yang ditandai | 51.53% |
+| Dropout average precision | 0.7788 |
 
-1. Setup Environment
+Kebijakan mengenali **250 dari 284** kasus Dropout, melewatkan **34**, dan menghasilkan **206** false positive. Total **456 profil** perlu ditinjau. Recall tinggi disertai beban peninjauan besar; kapasitas institusi nyata belum ditetapkan.
 
-- Membuat virtual environment
-    ```
-    python -m venv venv
-    ```
+**Evaluasi ini memakai holdout historis yang pernah dilihat pada submission.** Hasil bukan validasi eksternal independen. Skor juga tidak dibandingkan langsung sebagai peningkatan terhadap model lama yang memakai fitur semester 2 dan finansial.
 
-- Setup environment:  
-    ```
-    python -m venv venv  
-    source venv/bin/activate  # Untuk Linux/Mac  
-    venv\Scripts\activate     # Untuk Windows
-    ```
+![Seleksi model](reports/figures/model_selection.png)
+![Trade-off peninjauan](reports/figures/precision_recall.png)
 
-- Menginstal seluruh library yang dibutuhkan:  
-    ```
-    pip install -r requirements.txt
-    ```
+[Model card](docs/MODEL_CARD.md) memuat interval, kelemahan per kelas, error kelompok, dan batas penggunaan. Hasil terstruktur tersedia pada `reports/metrics.json`.
 
+## Mulai dalam lingkungan lokal
 
-2. Cara Mengakses Dashboard Metabase
+Gunakan **Python 3.12**. Di root repository:
 
-Proyek ini menggunakan Metabase versi v0.59.4. Untuk menjalankan dashboard menggunakan file database yang telah diekspor (metabase.db.mv.db), ikuti langkah-langkah berikut:
+```bash
+python -m venv .venv
+```
 
-- Pastikan Docker sudah terinstal dan berjalan di sistem Anda.
+Aktifkan environment dengan `.venv\Scripts\activate.bat` (Windows Command Prompt), `.\.venv\Scripts\Activate.ps1` (PowerShell), atau `source .venv/bin/activate` (Linux/macOS), kemudian:
 
-- Buka terminal/Command Prompt dan arahkan ke dalam direktori folder submission ini (tempat file ```metabase.db.mv.db``` berada).
+```bash
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
 
-- Jalankan perintah Docker berikut untuk menjalankan container Metabase dan menghubungkannya dengan database lokal:  
-    ```
-    docker run -d -p 3000:3000 -v "%cd%":/metabase-data -e MB_DB_FILE=/metabase-data/metabase.db metabase/metabase:v0.59.4  
-    ```  
-  
-  Catatan: Untuk pengguna Linux/Mac, ganti ```"%cd%"``` dengan ```$(pwd)```
+Model terlatih sudah disertakan. Contoh CSV sintetis ada di `examples/students_template.csv`. Instal versi dependensi yang sesuai karena model memeriksa versi scikit-learn saat dimuat.
 
-- Setelah container Docker berhasil berjalan, Anda harus mengimpor database dashboard terlebih dahulu dengan menjalankan langkah berikut:
-  - Pertama, klik container yang telah dijalankan tadi di Docker
-  - Klik kolom ```Files```
-  - Arahkan kursor ke folder ```app```, kemuadian klik kanan pada mouse
-  - Klik bagian ```Import```
+## Training, notebook, dan pengujian
 
-  <div align="center">
-    <img width="400" height="285" alt="Image1" src="https://i.ibb.co.com/5g1YH4dm/Cuplikan-layar-2026-04-03-161500.png" />
-  </div>
-    
-  - Pilih folder ```jaya-institute_database```
+```bash
+python -m student_success.train
+python scripts/build_notebook.py
+python -m unittest discover -s tests -v
+```
 
-  <div align="center">
-    <img width="400" height="245" alt="Image2" src="https://i.ibb.co.com/4nhr6Xz1/Cuplikan-layar-2026-04-03-164725.png" />
-  </div>
+Builder notebook menjalankan training kembali dan menghasilkan `notebook.ipynb` dengan output nyata. Untuk Jupyter:
 
-  - Database dashboard kita sudah terimpor jika sudah terlihat seperti gambar berikut 
+```bash
+python -m pip install -r requirements-notebook.txt
+jupyter lab notebook.ipynb
+```
 
-  <div align="center">
-    <img width="400" height="330" alt="Image3" src="https://i.ibb.co.com/G4xdvZ9N/Cuplikan-layar-2026-04-03-161522.png" />
-  </div>
+Notebook yang disertakan sudah dieksekusi: **41 sel, 28 sel kode**. [Protokol reproduksi](docs/REPRODUCIBILITY.md) menjelaskan alur, file keluaran, dan batas environment. [Catatan verifikasi](docs/VALIDATION.md) membedakan pemeriksaan yang lulus dan pengujian UI yang masih perlu dijalankan pada environment dengan Streamlit.
 
+## Struktur repository
 
-- Setelah database diimpor, Anda dapat langsung melihat dashboard tanpa perlu melakukan login dengan membuka tautan localhost publik berikut di browser:
-http://localhost:3000/public/dashboard/883b448e-07b2-4366-adec-4100575bb77b
+| Path | Peran |
+|---|---|
+| `app.py` | Aplikasi Streamlit: dashboard, individu, batch, kinerja |
+| `notebook.ipynb` | Narasi analisis dan alur training yang sudah dijalankan |
+| `student_success/` | Schema, pipeline, training, inference, figur |
+| `data/raw/` | Snapshot dataset asli, checksum tetap |
+| `artifacts/` | Model terkalibrasi, manifest, schema |
+| `reports/` | Split, CV, evaluasi, prediksi, diagnostik dan figur |
+| `examples/` | CSV sintetis untuk demonstrasi |
+| `tests/` | Kontrak data/artefak dan pengujian Streamlit |
+| `docs/` | Business/data/model card, migrasi, verifikasi |
+| `scripts/` | Builder notebook dan dokumentasi |
+| `.github/workflows/` | CI pada main dan pull request |
 
-### Cara Menjalankan Prototype Secara Lokal
+## Deployment dan arsip
 
-1. Pastikan seluruh dependency telah terinstal.
-2. Jalankan perintah berikut pada terminal:
-    ```
-    streamlit run app.py
-    ```
-3. Buka browser pada alamat lokal yang ditampilkan oleh Streamlit.
+Versi portofolio menggunakan entrypoint `app.py` dan Python 3.12 pada Streamlit Community Cloud. Tautan demo baru ditambahkan setelah deployment berhasil; paket ini tidak mengubah deployment lama.
 
-### Link Deployment Streamlit
+Original submission: [branch dicoding-submission](https://github.com/mpnabil95/Students-Performance/tree/dicoding-submission) · [release arsip](https://github.com/mpnabil95/Students-Performance/releases/tag/dicoding-submission-v1.0.0).
 
-- Link aplikasi: https://students-performance-cqhuunms2dwehvf5ymiwpf.streamlit.app
+Ikuti [panduan migrasi](docs/MIGRATION.md) untuk mengganti isi main tanpa mengubah arsip. [Penyelesaian temuan audit](docs/AUDIT_REMEDIATION.md) menjelaskan perubahan dari baseline.
 
+## Sumber, lisensi, dan atribusi
 
-## Business Dashboard
-
-Dashboard dibuat menggunakan Metabase untuk membantu pihak institusi memahami pola performa mahasiswa dan memonitor faktor-faktor yang berkaitan dengan dropout.
-
-Dashboard utama menampilkan beberapa komponen penting berikut:
-
-1. KPI total mahasiswa.
-2. KPI jumlah mahasiswa Dropout.
-3. KPI jumlah mahasiswa Enrolled.
-4. KPI jumlah mahasiswa Graduate.
-5. Distribusi status mahasiswa.
-6. Perbandingan status mahasiswa berdasarkan tuition fees up to date.
-7. Perbandingan status mahasiswa berdasarkan debtor.
-8. Perbandingan status mahasiswa berdasarkan scholarship holder.
-9. Rata-rata approved units semester 1 per status.
-10. Rata-rata grade semester 1 per status.
-11. Rata-rata approved units semester 2 per status.
-12. Rata-rata grade semester 2 per status.
-
-Melalui dashboard tersebut, pihak institusi dapat dengan cepat melihat:
-
-- proporsi mahasiswa berdasarkan status akhir,
-- hubungan antara kondisi finansial dengan risiko dropout,
-- perbedaan performa akademik antar kelompok status mahasiswa,
-- serta indikator utama yang dapat digunakan sebagai sinyal awal untuk intervensi.
-
-
-## Conclusion
-
-Berdasarkan hasil analisis data, terdapat beberapa faktor yang paling berkaitan dengan status akhir mahasiswa.
-
-- Faktor akademik menjadi indikator yang sangat kuat, terutama jumlah mata kuliah yang lulus dan nilai rata-rata pada semester 1 dan semester 2. Mahasiswa dengan jumlah mata kuliah lulus yang lebih rendah serta nilai akademik yang lebih rendah cenderung memiliki risiko dropout yang lebih tinggi.
-
-- Selain faktor akademik, faktor finansial juga menunjukkan hubungan yang jelas dengan risiko dropout. Mahasiswa yang memiliki status debtor atau belum up to date dalam pembayaran biaya kuliah cenderung lebih banyak berada pada kelompok dropout dibandingkan mahasiswa yang kondisi finansialnya lebih stabil.
-
-- Model machine learning yang dibangun pada proyek ini mampu memprediksi status mahasiswa ke dalam tiga kategori, yaitu Dropout, Enrolled, dan Graduate. Dengan dukungan dashboard Metabase dan prototype Streamlit, solusi yang dihasilkan tidak hanya memberikan insight analitis, tetapi juga dapat digunakan sebagai sistem peringatan dini untuk membantu institusi mengambil tindakan yang lebih cepat dan tepat.
-
-## Rekomendasi Action Items
-
-Berdasarkan hasil proyek ini, berikut beberapa rekomendasi yang dapat diterapkan oleh Jaya Jaya Institut:
-
-1. Membuat sistem monitoring rutin untuk mahasiswa dengan jumlah mata kuliah lulus yang rendah pada semester 1 dan semester 2.
-2. Menyediakan program pendampingan akademik bagi mahasiswa yang menunjukkan penurunan nilai atau performa belajar.
-3. Menjalankan intervensi finansial bagi mahasiswa dengan status debtor atau pembayaran biaya kuliah yang belum up to date.
-4. Memanfaatkan prototype machine learning sebagai alat bantu untuk mengidentifikasi mahasiswa berisiko tinggi secara lebih dini.
-5. Mengintegrasikan dashboard monitoring ke proses evaluasi akademik berkala agar keputusan yang diambil lebih berbasis data.
-6. Melakukan evaluasi lanjutan secara periodik terhadap performa model agar sistem prediksi tetap relevan jika terdapat perubahan pola mahasiswa di masa depan.
+- Konteks pembelajaran: Dicoding, Penerapan Data Science — Menyelesaikan Permasalahan Institusi Pendidikan.
+- Dataset: [Dicoding Academy](https://github.com/dicodingacademy/dicoding_dataset/tree/main/students_performance), bersumber dari [UCI](https://doi.org/10.24432/C5MC89).
+- Realinho, V., Vieira Martins, M., Machado, J., & Baptista, L. (2021). *Predict Students' Dropout and Academic Success*. UCI Machine Learning Repository.
+- Kode: [MIT License](LICENSE). Dataset: CC BY 4.0 sesuai sumber UCI; atribusi data tetap berlaku.
+- Pengembang: **Muhammad Pangeran Nabil**.

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "Please cite this project and the original UCI dataset separately."
+title: "Student Success: Semester-One Outcome Prediction"
+type: software
+authors:
+  - family-names: "Nabil"
+    given-names: "Muhammad Pangeran"
+version: 1.0.0
+url: "https://github.com/mpnabil95/Students-Performance"
+license: MIT
+references:
+  - type: data
+    title: "Predict Students' Dropout and Academic Success"
+    authors:
+      - family-names: "Realinho"
+        given-names: "Valentim"
+      - family-names: "Vieira Martins"
+        given-names: "Mónica"
+      - family-names: "Machado"
+        given-names: "Jorge"
+      - family-names: "Baptista"
+        given-names: "Luís"
+    year: 2021
+    doi: "10.24432/C5MC89"
+    url: "https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success"

@@ -1,0 +1,136 @@
+{
+  "model_version": "semester1-v1.0.0",
+  "candidate": "random_forest",
+  "classes": [
+    "Dropout",
+    "Enrolled",
+    "Graduate"
+  ],
+  "features": [
+    "Course",
+    "Application_mode",
+    "Application_order",
+    "Daytime_evening_attendance",
+    "Previous_qualification",
+    "Previous_qualification_grade",
+    "Admission_grade",
+    "Age_at_enrollment",
+    "Curricular_units_1st_sem_credited",
+    "Curricular_units_1st_sem_enrolled",
+    "Curricular_units_1st_sem_evaluations",
+    "Curricular_units_1st_sem_approved",
+    "Curricular_units_1st_sem_grade",
+    "Curricular_units_1st_sem_without_evaluations"
+  ],
+  "threshold": 0.19,
+  "threshold_objective": "F2 on policy validation",
+  "data_sha256": "a37dbda5555089a8d39b8be6f1a242f68403963a1f81423115c9676c8c7100e9",
+  "model_sha256": "d5a6fb0417668b16d313bc58b3e35d7e263e25d7b92b6dd7ae1e6c5ba79aa6f1",
+  "protocol": {
+    "version": "semester1-v1",
+    "scenario": "Retrospective status prediction using information through semester 1",
+    "target": "Status at the end of the normal course duration; not time-to-dropout",
+    "seed": 42,
+    "split": "60% model development / 20% policy validation / 20% historical holdout",
+    "holdout_caveat": "Same historical 20% split as the submission; already inspected in the old project, not pristine external validation.",
+    "selection": "Highest mean 5-fold macro F1; candidate order breaks exact ties.",
+    "calibration": "3-fold sigmoid calibration within each training fold, ensemble=True",
+    "policy": "One review threshold maximizing dropout F2 on policy validation, tie -> higher threshold.",
+    "threshold_grid": {
+      "min": 0.05,
+      "max": 0.95,
+      "step": 0.01
+    },
+    "deployment_fit": "Selected calibrated model fit only on 60% development; no post-holdout refit.",
+    "feature_policy": "14 admission/semester-1 fields; exclude semester 2, ambiguously timed financial/macroeconomic fields, gender/nationality and family attributes. Age at enrollment is retained and audited."
+  },
+  "environment": {
+    "scikit-learn": "1.8.0",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "joblib": "1.5.3",
+    "matplotlib": "3.10.8",
+    "python": "3.12.14"
+  },
+  "training_ranges": {
+    "Application_order": {
+      "min": 0.0,
+      "max": 6.0
+    },
+    "Previous_qualification_grade": {
+      "min": 95.0,
+      "max": 190.0
+    },
+    "Admission_grade": {
+      "min": 95.0,
+      "max": 190.0
+    },
+    "Age_at_enrollment": {
+      "min": 17.0,
+      "max": 70.0
+    },
+    "Curricular_units_1st_sem_credited": {
+      "min": 0.0,
+      "max": 20.0
+    },
+    "Curricular_units_1st_sem_enrolled": {
+      "min": 0.0,
+      "max": 26.0
+    },
+    "Curricular_units_1st_sem_evaluations": {
+      "min": 0.0,
+      "max": 45.0
+    },
+    "Curricular_units_1st_sem_approved": {
+      "min": 0.0,
+      "max": 26.0
+    },
+    "Curricular_units_1st_sem_grade": {
+      "min": 0.0,
+      "max": 18.875
+    },
+    "Curricular_units_1st_sem_without_evaluations": {
+      "min": 0.0,
+      "max": 12.0
+    }
+  },
+  "counts": {
+    "model_development": 2654,
+    "policy_validation": 885,
+    "historical_holdout": 885
+  },
+  "excluded_features": [
+    "Marital_status",
+    "Nacionality",
+    "Mothers_qualification",
+    "Fathers_qualification",
+    "Mothers_occupation",
+    "Fathers_occupation",
+    "Displaced",
+    "Educational_special_needs",
+    "Debtor",
+    "Tuition_fees_up_to_date",
+    "Gender",
+    "Scholarship_holder",
+    "International",
+    "Curricular_units_2nd_sem_credited",
+    "Curricular_units_2nd_sem_enrolled",
+    "Curricular_units_2nd_sem_evaluations",
+    "Curricular_units_2nd_sem_approved",
+    "Curricular_units_2nd_sem_grade",
+    "Curricular_units_2nd_sem_without_evaluations",
+    "Unemployment_rate",
+    "Inflation_rate",
+    "GDP"
+  ],
+  "code_sha256": {
+    "__init__.py": "55fe37638f3f39227554141c59d9b03720799a6f2f27323e71d416861a534b55",
+    "config.py": "edefdbcf1f1a55415c760cee26ee01ff92c59444d9909ee845afa144f9832937",
+    "inference.py": "bd329646eb7817ff1bacf3acbb26bda8164fe3c23d63a0db4802e35a0d843bfd",
+    "modeling.py": "3099508753ed8a3fe2b4768a9dca8e0841c26b9a7e2f043467389507206997e6",
+    "schema.py": "26edb23959d8e1556110d1e2dee4dd44a513574e7a6d702a68cbad562e0250f4",
+    "train.py": "c99b176a48a1a031757e5819f15ed0b3d50b09a5eecd89afd65f98009896db96",
+    "visuals.py": "25845dedeb139b149f9f00d8b709b7829af70d79a3633ee1e5a09105911b494f"
+  }
+}

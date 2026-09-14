@@ -1,0 +1,273 @@
+{
+  "protocol": {
+    "version": "semester1-v1",
+    "scenario": "Retrospective status prediction using information through semester 1",
+    "target": "Status at the end of the normal course duration; not time-to-dropout",
+    "seed": 42,
+    "split": "60% model development / 20% policy validation / 20% historical holdout",
+    "holdout_caveat": "Same historical 20% split as the submission; already inspected in the old project, not pristine external validation.",
+    "selection": "Highest mean 5-fold macro F1; candidate order breaks exact ties.",
+    "calibration": "3-fold sigmoid calibration within each training fold, ensemble=True",
+    "policy": "One review threshold maximizing dropout F2 on policy validation, tie -> higher threshold.",
+    "threshold_grid": {
+      "min": 0.05,
+      "max": 0.95,
+      "step": 0.01
+    },
+    "deployment_fit": "Selected calibrated model fit only on 60% development; no post-holdout refit.",
+    "feature_policy": "14 admission/semester-1 fields; exclude semester 2, ambiguously timed financial/macroeconomic fields, gender/nationality and family attributes. Age at enrollment is retained and audited."
+  },
+  "selected_candidate": "random_forest",
+  "threshold": 0.19,
+  "counts": {
+    "model_development": 2654,
+    "policy_validation": 885,
+    "historical_holdout": 885
+  },
+  "model_selection": [
+    {
+      "candidate": "dummy",
+      "macro_f1_mean": 0.22199888330541598,
+      "macro_f1_std": 0.00012485024999997913,
+      "dropout_brier_mean": 0.2181029032720569,
+      "dropout_ap_mean": 0.32140141420601925
+    },
+    {
+      "candidate": "logistic",
+      "macro_f1_mean": 0.5442436014629457,
+      "macro_f1_std": 0.013596077466155123,
+      "dropout_brier_mean": 0.1231603672829441,
+      "dropout_ap_mean": 0.8208251342627347
+    },
+    {
+      "candidate": "random_forest",
+      "macro_f1_mean": 0.6264936542194179,
+      "macro_f1_std": 0.017356545948325138,
+      "dropout_brier_mean": 0.12675045483748024,
+      "dropout_ap_mean": 0.8078848128548124
+    },
+    {
+      "candidate": "hist_gradient_boosting",
+      "macro_f1_mean": 0.5610759191372727,
+      "macro_f1_std": 0.015077750933836603,
+      "dropout_brier_mean": 0.1253604868207006,
+      "dropout_ap_mean": 0.8152431218499689
+    }
+  ],
+  "admission_logistic_cv_macro_f1": 0.4265654180062917,
+  "policy_validation": {
+    "n": 885,
+    "accuracy": 0.7141242937853107,
+    "macro_f1": 0.6316072450872873,
+    "weighted_f1": 0.699898188880156,
+    "log_loss": 0.7136339784747128,
+    "dropout_brier": 0.13620249753595698,
+    "dropout_average_precision": 0.7721855041026775,
+    "classification_report": {
+      "Dropout": {
+        "precision": 0.7297297297297297,
+        "recall": 0.6654929577464789,
+        "f1-score": 0.6961325966850829,
+        "support": 284.0
+      },
+      "Enrolled": {
+        "precision": 0.4722222222222222,
+        "recall": 0.32075471698113206,
+        "f1-score": 0.38202247191011235,
+        "support": 159.0
+      },
+      "Graduate": {
+        "precision": 0.7567567567567568,
+        "recall": 0.8868778280542986,
+        "f1-score": 0.8166666666666667,
+        "support": 442.0
+      },
+      "accuracy": 0.7141242937853107,
+      "macro avg": {
+        "precision": 0.6529029029029029,
+        "recall": 0.6243751675939698,
+        "f1-score": 0.6316072450872873,
+        "support": 885.0
+      },
+      "weighted avg": {
+        "precision": 0.696963913065608,
+        "recall": 0.7141242937853107,
+        "f1-score": 0.699898188880156,
+        "support": 885.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        189,
+        36,
+        59
+      ],
+      [
+        41,
+        51,
+        67
+      ],
+      [
+        29,
+        21,
+        392
+      ]
+    ],
+    "policy": {
+      "threshold": 0.19,
+      "precision": 0.5359477124183006,
+      "recall": 0.8661971830985915,
+      "f2": 0.7711598746081505,
+      "review_rate": 0.5186440677966102,
+      "review_count": 459,
+      "tp": 246,
+      "fn": 38,
+      "fp": 213,
+      "tn": 388
+    }
+  },
+  "historical_holdout": {
+    "n": 885,
+    "accuracy": 0.7084745762711865,
+    "macro_f1": 0.6128697744426644,
+    "weighted_f1": 0.6904107468431886,
+    "log_loss": 0.7068901527677409,
+    "dropout_brier": 0.13383676341555362,
+    "dropout_average_precision": 0.7787827153326826,
+    "classification_report": {
+      "Dropout": {
+        "precision": 0.7153846153846154,
+        "recall": 0.6549295774647887,
+        "f1-score": 0.6838235294117647,
+        "support": 284.0
+      },
+      "Enrolled": {
+        "precision": 0.42574257425742573,
+        "recall": 0.27044025157232704,
+        "f1-score": 0.33076923076923076,
+        "support": 159.0
+      },
+      "Graduate": {
+        "precision": 0.7595419847328244,
+        "recall": 0.9004524886877828,
+        "f1-score": 0.8240165631469979,
+        "support": 442.0
+      },
+      "accuracy": 0.7084745762711865,
+      "macro avg": {
+        "precision": 0.6335563914582886,
+        "recall": 0.6086074392416329,
+        "f1-score": 0.6128697744426644,
+        "support": 885.0
+      },
+      "weighted avg": {
+        "precision": 0.6854009687322824,
+        "recall": 0.7084745762711865,
+        "f1-score": 0.6904107468431886,
+        "support": 885.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        186,
+        39,
+        59
+      ],
+      [
+        49,
+        43,
+        67
+      ],
+      [
+        25,
+        19,
+        398
+      ]
+    ],
+    "policy": {
+      "threshold": 0.19,
+      "precision": 0.5482456140350878,
+      "recall": 0.8802816901408451,
+      "f2": 0.785175879396985,
+      "review_rate": 0.5152542372881356,
+      "review_count": 456,
+      "tp": 250,
+      "fn": 34,
+      "fp": 206,
+      "tn": 395
+    }
+  },
+  "dummy_historical_holdout": {
+    "n": 885,
+    "accuracy": 0.4994350282485876,
+    "macro_f1": 0.22205476011052497,
+    "weighted_f1": 0.33270577616560015,
+    "log_loss": 1.0199121519630958,
+    "dropout_brier": 0.21792485430287753,
+    "dropout_average_precision": 0.32090395480225986,
+    "classification_report": {
+      "Dropout": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 284.0
+      },
+      "Enrolled": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 159.0
+      },
+      "Graduate": {
+        "precision": 0.4994350282485876,
+        "recall": 1.0,
+        "f1-score": 0.6661642803315749,
+        "support": 442.0
+      },
+      "accuracy": 0.4994350282485876,
+      "macro avg": {
+        "precision": 0.1664783427495292,
+        "recall": 0.3333333333333333,
+        "f1-score": 0.22205476011052497,
+        "support": 885.0
+      },
+      "weighted avg": {
+        "precision": 0.24943534744166748,
+        "recall": 0.4994350282485876,
+        "f1-score": 0.33270577616560015,
+        "support": 885.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        284
+      ],
+      [
+        0,
+        0,
+        159
+      ],
+      [
+        0,
+        0,
+        442
+      ]
+    ]
+  },
+  "bootstrap_95ci": {
+    "macro_f1": {
+      "lower": 0.5784730554300754,
+      "upper": 0.6468807567627711
+    },
+    "dropout_recall_policy": {
+      "lower": 0.8421948688926617,
+      "upper": 0.9137680866542721
+    },
+    "dropout_precision_policy": {
+      "lower": 0.5016774953406503,
+      "upper": 0.6011685219789553
+    }
+  }
+}
