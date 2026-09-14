@@ -12,7 +12,7 @@ Repository ini menggabungkan sebuah studi analisis dan aplikasi yang memakai has
 | Mencoba aplikasi | Petunjuk instalasi di README utama → APP_GUIDE → template di examples |
 | Mengembangkan project | Panduan ini → schema/inference atau modeling/train → REPRODUCIBILITY → tests |
 
-Untuk menemukan satu file tertentu, buka README foldernya melalui tabel berikut. README folder menyebut setiap file langsung di dalamnya, fungsi, dan kapan perlu dibuka.
+Untuk menemukan satu file tertentu, buka README foldernya melalui tabel berikut. README folder menyebut setiap file langsung di dalamnya, fungsi, dan kapan perlu dibuka. Khusus `.github/`, gunakan `GUIDE.md` agar README utama tetap tampil pada beranda repository.
 
 ## Hubungan antar-folder
 
@@ -26,7 +26,7 @@ Untuk menemukan satu file tertentu, buka README foldernya melalui tabel berikut.
 | Otomatisasi lokal | [scripts/](../scripts/README.md) | Perintah untuk membangun notebook/dokumen dan memeriksa paket |
 | Bahan percobaan | [examples/](../examples/README.md) | Input sintetis untuk mencoba aplikasi |
 | Pemeriksaan perilaku | [tests/](../tests/README.md) | Tes otomatis aturan data, model, dan sebagian alur aplikasi |
-| Otomatisasi GitHub | [.github/](../.github/README.md) dan [workflows/](../.github/workflows/README.md) | Perintah pemeriksaan pada runner GitHub Actions |
+| Otomatisasi GitHub | [.github/](../.github/GUIDE.md) dan [workflows/](../.github/workflows/README.md) | Perintah pemeriksaan pada runner GitHub Actions |
 | Tampilan dan pengaturan app | [.streamlit/](../.streamlit/README.md) | Tema dan pengaturan unggahan |
 
 Saat **training**, kode membaca `data/raw/` dan menghasilkan `artifacts/`, `reports/`, serta template sintetis. Saat **prediksi**, `app.py` memakai kode `student_success/` untuk membaca artefak dan memproses masukan pengguna. Dashboard membaca dataset historis, sedangkan halaman kinerja membaca laporan.
@@ -99,3 +99,9 @@ Menambah README di folder tidak mengubah jalur impor Python atau lokasi model. F
 Saat menambah file, tuliskan fungsinya di README folder terkait. Tambahkan README baru jika subfolder mempunyai tujuan tersendiri, banyak isi, atau membutuhkan aturan khusus. Tidak perlu membuat satu README untuk setiap file atau mengulang penjelasan teknis lengkap di semua tingkat.
 
 Pertahankan penjelasan ringkas di README utama, rincian file di README folder, dan alasan metodologis di dokumen khusus. Setelah mengubah struktur, periksa tautan relatif dan perintah yang menggunakan path lama. Aturan regenerasi dokumentasi ada di [scripts/README.md](../scripts/README.md).
+
+## Pengecualian untuk folder .github
+
+GitHub memilih README beranda dari `.github`, lalu root, kemudian `docs`. Karena itu dokumentasi langsung dalam `.github/` bernama [GUIDE.md](../.github/GUIDE.md), bukan `README.md`. README di `.github/workflows/` dan folder lain tetap dapat digunakan. Jangan membuat kembali `.github/README.md` untuk indeks folder.
+
+Sumber: [GitHub Docs — About READMEs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes).

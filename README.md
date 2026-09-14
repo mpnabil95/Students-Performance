@@ -166,7 +166,7 @@ Model akhir dilatih pada data development saja; tidak dilatih ulang menggunakan 
 
 ## Struktur repository
 
-Setiap folder memiliki README yang menjelaskan file di dalamnya. Mulai dari fungsi folder sebelum membuka kode atau keluaran mesin.
+Folder project memiliki README yang menjelaskan file di dalamnya. Khusus `.github/`, panduannya bernama `GUIDE.md` agar tidak mengambil prioritas README utama pada beranda GitHub. Mulai dari fungsi folder sebelum membuka kode atau keluaran mesin.
 
 | Lokasi | Isi dalam bahasa sederhana | Panduan |
 |---|---|---|
@@ -180,7 +180,7 @@ Setiap folder memiliki README yang menjelaskan file di dalamnya. Mulai dari fung
 | `scripts/` | Perintah bantuan untuk membangun notebook, dokumen, dan verifikasi | [README scripts](scripts/README.md) |
 | `examples/` | Tiga profil sintetis untuk mencoba unggahan | [README examples](examples/README.md) |
 | `tests/` | Pemeriksaan otomatis perilaku kode dan aplikasi | [README tests](tests/README.md) |
-| `.github/` | Otomatisasi pengujian di GitHub | [README GitHub](.github/README.md) |
+| `.github/` | Otomatisasi pengujian di GitHub | [Panduan GitHub](.github/GUIDE.md) |
 | `.streamlit/` | Pengaturan tampilan dan unggahan aplikasi | [README Streamlit](.streamlit/README.md) |
 
 Seluruh file pada root, jenis file, hubungan antar-folder, dan aturan penyuntingan dijelaskan di [REPOSITORY_GUIDE.md](docs/REPOSITORY_GUIDE.md).
