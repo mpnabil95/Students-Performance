@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: "Please cite this project and the original UCI dataset separately."
-title: "Student Success: Semester-One Outcome Prediction"
+title: "Student Success: Dropout Risk & Academic Outcome Prediction"
 type: software
 authors:
   - family-names: "Nabil"
     given-names: "Muhammad Pangeran"
 version: 1.0.0
-url: "https://github.com/mpnabil95/Students-Performance"
+url: "https://github.com/mpnabil95/student-success-prediction"
 license: MIT
 references:
   - type: data

@@ -1,4 +1,6 @@
-# Catatan verifikasi paket
+# Catatan verifikasi paket awal
+
+Dokumen ini merekam lingkungan pembuatan paket awal. Pemeriksaan berikutnya pada GitHub Actions untuk commit `6a5c888` telah berhasil, termasuk 16 tes tanpa skip dan validasi nbformat. [Bukti CI historis dan batas cakupannya](../tests/README.md#bukti-ci-historis) menjelaskan perbedaannya. Catatan lokal awal di bawah dipertahankan sebagai riwayat.
 
 ## Pemeriksaan yang benar-benar dijalankan
 
@@ -29,6 +31,6 @@ python -c "import nbformat; nbformat.validate(nbformat.read('notebook.ipynb', as
 streamlit run app.py
 ```
 
-CI `.github/workflows/quality.yml` memasang dependensi dan menjalankan tests serta validasi notebook. Status CI belum diklaim lulus karena belum dipush/dijalankan pada GitHub.
+Pada saat paket awal dibangun, CI belum dijalankan. Run berikutnya telah berhasil; lihat [README tests](../tests/README.md#bukti-ci-historis). `reports/verification.json` tetap merekam pemeriksaan lokal awal dan tidak otomatis diperbarui oleh CI.
 
 Hasil mesin: `reports/verification.json`. Jalankan `python scripts/verify_package.py` untuk memperbarui catatan pemeriksaan lokal setelah menyiapkan environment lengkap.

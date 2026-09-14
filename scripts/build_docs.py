@@ -9,131 +9,33 @@ m=json.loads((ROOT/'reports/metrics.json').read_text());manifest=json.loads((ROO
 h=m['historical_holdout'];p=h['policy'];ci=m['bootstrap_95ci']
 def write(path,text):(ROOT/path).write_text(text.strip()+'\n',encoding='utf-8')
 
-write('README.md',f'''
-# Student Success — Semester-One Outcome Prediction
+# Preserve the hand-written README and refresh only its metric block.
+readme_path=ROOT/'README.md'
+readme=readme_path.read_text(encoding='utf-8')
+start_marker='<!-- MODEL_RESULTS:START -->'
+end_marker='<!-- MODEL_RESULTS:END -->'
+if readme.count(start_marker)!=1 or readme.count(end_marker)!=1:
+    raise ValueError('README must contain exactly one MODEL_RESULTS start/end marker pair.')
+start=readme.index(start_marker)+len(start_marker)
+end=readme.index(end_marker)
+if start>=end:
+    raise ValueError('README MODEL_RESULTS markers are out of order.')
+results=f'''Model terpilih: **{m['selected_candidate']}**, dengan kalibrasi sigmoid dan threshold peninjauan **{m['threshold']:.2f}**. Angka berikut berasal dari **{m['counts']['historical_holdout']:,} baris holdout historis**; rincian tersedia di [model card](docs/MODEL_CARD.md) dan [metrics.json](reports/metrics.json).
 
-Studi kasus Data Science untuk memahami status studi mahasiswa dan membantu prioritas peninjauan menggunakan informasi sampai **akhir semester 1**.
+| Ukuran | Hasil | Arti praktis |
+|---|---:|---|
+| Accuracy tiga kelas | {h['accuracy']:.2%} | Bagian status yang diprediksi benar |
+| Macro F1 | {h['macro_f1']:.4f} | Rata-rata F1 dengan bobot sama untuk ketiga kelas |
+| Weighted F1 | {h['weighted_f1']:.4f} | F1 dengan bobot sesuai jumlah contoh setiap kelas |
+| Recall kebijakan Dropout | {p['recall']:.2%} | Bagian kasus Dropout aktual yang ditandai |
+| Precision kebijakan Dropout | {p['precision']:.2%} | Bagian profil yang ditandai dan memang berstatus Dropout |
+| Review rate | {p['review_rate']:.2%} | Bagian seluruh profil yang membutuhkan peninjauan |
+| Dropout average precision | {h['dropout_average_precision']:.4f} | Ringkasan hubungan precision dan recall di berbagai ambang |
 
-**14 fitur · 3 kelas · validasi terpisah · probabilitas terkalibrasi · dashboard Streamlit**
+Pada ambang ini, **{p['tp']} dari {p['tp']+p['fn']} kasus Dropout** teridentifikasi dan **{p['fn']} kasus** terlewat. Ada **{p['fp']} profil selain Dropout** yang juga ditandai, sehingga total **{p['review_count']} profil** perlu ditinjau. Recall tinggi disertai beban kerja yang besar; kapasitas tim nyata belum ditetapkan.
 
-Proyek ini berkembang dari submission Dicoding dengan konteks Jaya Jaya Institut (fiktif). Versi portofolio mempertajam waktu prediksi, memperbaiki evaluasi dan validasi input, serta menyatukan analisis dan prediksi dalam satu aplikasi.
-
-> Model merupakan demonstrasi prediksi retrospektif. Dataset tidak memiliki tanggal dropout per mahasiswa; hasil tidak membuktikan bahwa setiap prediksi dibuat sebelum kejadian. Enrolled bukan jaminan lulus atau bebas risiko.
-
-![Distribusi status studi](reports/figures/status_distribution.png)
-
-## Apa yang dapat dilakukan
-
-- Menjelajahi data historis dengan filter program studi dan usia.
-- Memasukkan profil semester 1 dengan label kategori dan skala yang jelas.
-- Memvalidasi serta memprediksi CSV secara batch; mengunduh hasil dengan source_row.
-- Melihat probabilitas tiga kelas dan satu kategori peninjauan yang konsisten.
-- Memeriksa performa, calibration curve, trade-off peninjauan, dan keterbatasan.
-
-## Desain studi kasus
-
-| Aspek | Keputusan |
-|---|---|
-| Target | Dropout / Enrolled / Graduate pada akhir durasi normal program |
-| Skenario | Fitur pendaftaran + hasil semester 1 |
-| Fitur dikeluarkan | Semester 2, status finansial/makro yang timing-nya belum jelas, gender/kebangsaan dan atribut keluarga; usia tetap digunakan |
-| Pemilihan model | Mean macro F1 pada 5-fold CV, hanya data development |
-| Kalibrasi | Sigmoid 3-fold di dalam training |
-| Threshold | Maksimalkan F2 pada policy validation, terpisah dari seleksi model |
-| Output tindakan | Perlu peninjauan / Pemantauan rutin; ditentukan oleh P(Dropout) |
-| Penggunaan | Pendampingan oleh manusia, bukan keputusan akademik otomatis |
-
-Detail: [Business case](docs/BUSINESS_CASE.md) · [Data card](docs/DATA_CARD.md) · [Kamus fitur](docs/FEATURE_DICTIONARY.md).
-
-## Hasil yang diperoleh
-
-Model terpilih: **{m['selected_candidate']}**, dengan threshold **{m['threshold']:.2f}**.
-
-| Metrik holdout historis (n = {h['n']}) | Nilai |
-|---|---:|
-| Accuracy multiclass | {h['accuracy']:.2%} |
-| Macro F1 | {h['macro_f1']:.4f} |
-| Weighted F1 | {h['weighted_f1']:.4f} |
-| Recall Dropout pada kebijakan peninjauan | {p['recall']:.2%} |
-| Precision pada kebijakan peninjauan | {p['precision']:.2%} |
-| Proporsi profil yang ditandai | {p['review_rate']:.2%} |
-| Dropout average precision | {h['dropout_average_precision']:.4f} |
-
-Kebijakan mengenali **{p['tp']} dari {p['tp']+p['fn']}** kasus Dropout, melewatkan **{p['fn']}**, dan menghasilkan **{p['fp']}** false positive. Total **{p['review_count']} profil** perlu ditinjau. Recall tinggi disertai beban peninjauan besar; kapasitas institusi nyata belum ditetapkan.
-
-**Evaluasi ini memakai holdout historis yang pernah dilihat pada submission.** Hasil bukan validasi eksternal independen. Skor juga tidak dibandingkan langsung sebagai peningkatan terhadap model lama yang memakai fitur semester 2 dan finansial.
-
-![Seleksi model](reports/figures/model_selection.png)
-![Trade-off peninjauan](reports/figures/precision_recall.png)
-
-[Model card](docs/MODEL_CARD.md) memuat interval, kelemahan per kelas, error kelompok, dan batas penggunaan. Hasil terstruktur tersedia pada `reports/metrics.json`.
-
-## Mulai dalam lingkungan lokal
-
-Gunakan **Python 3.12**. Di root repository:
-
-```bash
-python -m venv .venv
-```
-
-Aktifkan environment dengan `.venv\\Scripts\\activate.bat` (Windows Command Prompt), `.\\.venv\\Scripts\\Activate.ps1` (PowerShell), atau `source .venv/bin/activate` (Linux/macOS), kemudian:
-
-```bash
-python -m pip install -r requirements.txt
-streamlit run app.py
-```
-
-Model terlatih sudah disertakan. Contoh CSV sintetis ada di `examples/students_template.csv`. Instal versi dependensi yang sesuai karena model memeriksa versi scikit-learn saat dimuat.
-
-## Training, notebook, dan pengujian
-
-```bash
-python -m student_success.train
-python scripts/build_notebook.py
-python -m unittest discover -s tests -v
-```
-
-Builder notebook menjalankan training kembali dan menghasilkan `notebook.ipynb` dengan output nyata. Untuk Jupyter:
-
-```bash
-python -m pip install -r requirements-notebook.txt
-jupyter lab notebook.ipynb
-```
-
-Notebook yang disertakan sudah dieksekusi: **41 sel, 28 sel kode**. [Protokol reproduksi](docs/REPRODUCIBILITY.md) menjelaskan alur, file keluaran, dan batas environment. [Catatan verifikasi](docs/VALIDATION.md) membedakan pemeriksaan yang lulus dan pengujian UI yang masih perlu dijalankan pada environment dengan Streamlit.
-
-## Struktur repository
-
-| Path | Peran |
-|---|---|
-| `app.py` | Aplikasi Streamlit: dashboard, individu, batch, kinerja |
-| `notebook.ipynb` | Narasi analisis dan alur training yang sudah dijalankan |
-| `student_success/` | Schema, pipeline, training, inference, figur |
-| `data/raw/` | Snapshot dataset asli, checksum tetap |
-| `artifacts/` | Model terkalibrasi, manifest, schema |
-| `reports/` | Split, CV, evaluasi, prediksi, diagnostik dan figur |
-| `examples/` | CSV sintetis untuk demonstrasi |
-| `tests/` | Kontrak data/artefak dan pengujian Streamlit |
-| `docs/` | Business/data/model card, migrasi, verifikasi |
-| `scripts/` | Builder notebook dan dokumentasi |
-| `.github/workflows/` | CI pada main dan pull request |
-
-## Deployment dan arsip
-
-Versi portofolio menggunakan entrypoint `app.py` dan Python 3.12 pada Streamlit Community Cloud. Tautan demo baru ditambahkan setelah deployment berhasil; paket ini tidak mengubah deployment lama.
-
-Original submission: [branch dicoding-submission](https://github.com/mpnabil95/Students-Performance/tree/dicoding-submission) · [release arsip](https://github.com/mpnabil95/Students-Performance/releases/tag/dicoding-submission-v1.0.0).
-
-Ikuti [panduan migrasi](docs/MIGRATION.md) untuk mengganti isi main tanpa mengubah arsip. [Penyelesaian temuan audit](docs/AUDIT_REMEDIATION.md) menjelaskan perubahan dari baseline.
-
-## Sumber, lisensi, dan atribusi
-
-- Konteks pembelajaran: Dicoding, Penerapan Data Science — Menyelesaikan Permasalahan Institusi Pendidikan.
-- Dataset: [Dicoding Academy](https://github.com/dicodingacademy/dicoding_dataset/tree/main/students_performance), bersumber dari [UCI](https://doi.org/10.24432/C5MC89).
-- Realinho, V., Vieira Martins, M., Machado, J., & Baptista, L. (2021). *Predict Students' Dropout and Academic Success*. UCI Machine Learning Repository.
-- Kode: [MIT License](LICENSE). Dataset: CC BY 4.0 sesuai sumber UCI; atribusi data tetap berlaku.
-- Pengembang: **Muhammad Pangeran Nabil**.
-''')
+**Holdout ini pernah dilihat pada submission lama.** Angka tersebut bukan validasi eksternal independen dan tidak dibandingkan langsung sebagai peningkatan atas model lama yang menggunakan fitur semester 2 serta finansial.'''
+readme_path.write_text(readme[:start]+'\n'+results.strip()+'\n'+readme[end:],encoding='utf-8')
 
 per_class='\n'.join(f"| {c} | {h['classification_report'][c]['precision']:.3f} | {h['classification_report'][c]['recall']:.3f} | {h['classification_report'][c]['f1-score']:.3f} | {h['classification_report'][c]['support']:.0f} |" for c in ['Dropout','Enrolled','Graduate'])
 write('docs/MODEL_CARD.md',f'''
@@ -238,4 +140,4 @@ Periksa `docs/VALIDATION.md`, jalankan CI dan tes Streamlit pada environment len
 
 Arsip submission tetap pada `dicoding-submission-v1.0.0`.
 ''')
-print('Refreshed README, model card, feature dictionary, and release notes.')
+print('Refreshed README metric block, model card, feature dictionary, and release notes.')

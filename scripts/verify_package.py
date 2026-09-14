@@ -62,8 +62,8 @@ text=f'''# Catatan verifikasi paket
 ## Batas verifikasi
 
 - Tes Streamlit/AppTest: **{status}**.
-- Pemasangan Streamlit dan dependensi notebook melalui pip tidak berhasil pada lingkungan pembuatan. Ini tidak membuktikan paket tersebut tidak tersedia pada komputer pengguna.
-- Builder notebook menggunakan eksekusi Python biasa; validasi native nbformat/Jupyter serta antarmuka interaktif belum dijalankan pada runtime ini.
+- Instalasi dependensi tidak diaudit oleh script ini. Ketersediaan Streamlit dicatat pada hasil lokal; lihat bukti CI secara terpisah.
+- Pemeriksa ini membaca struktur JSON dan sintaks sel; tidak menjalankan validasi nbformat atau eksekusi kernel Jupyter. Builder notebook menggunakan eksekusi Python biasa. Validasi format nbformat memiliki langkah tersendiri di CI.
 - Tampilan browser, alur unggah-unduh melalui browser, dan deployment Streamlit belum diuji langsung.
 - Database Metabase lama tidak dipulihkan; dashboard portofolio menggunakan CSV dan Streamlit.
 - Holdout historis sudah dilihat pada proyek lama; tidak ada validasi institusi eksternal.
@@ -77,7 +77,7 @@ python -c "import nbformat; nbformat.validate(nbformat.read('notebook.ipynb', as
 streamlit run app.py
 ```
 
-CI `.github/workflows/quality.yml` memasang dependensi dan menjalankan tests serta validasi notebook. Status CI belum diklaim lulus karena belum dipush/dijalankan pada GitHub.
+Catatan di atas merekam lingkungan verifikasi lokal dan tidak menunjukkan status GitHub Actions terbaru. Workflow `.github/workflows/quality.yml` menjalankan pembangunan notebook/dokumen, tests, serta validasi format notebook. Bukti run CI historis yang diperiksa tersedia pada [README tests](../tests/README.md#bukti-ci-historis).
 
 Hasil mesin: `reports/verification.json`. Jalankan `python scripts/verify_package.py` untuk memperbarui catatan pemeriksaan lokal setelah menyiapkan environment lengkap.
 '''
