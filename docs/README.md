@@ -9,6 +9,7 @@ Folder ini menjelaskan alasan, cara penggunaan, bukti, dan riwayat project. Tida
 | File atau folder | Fungsi | Kapan dibuka |
 |---|---|---|
 | [REPOSITORY_GUIDE.md](REPOSITORY_GUIDE.md) | Peta file root, hubungan antar-folder, jenis file, dan kamus istilah. | Pertama kali membuka repository atau bingung memilih file. |
+| [UI_CHANGELOG.md](UI_CHANGELOG.md) | Perubahan antarmuka, dependensi, cakupan pengujian, dan pemeriksaan visual yang masih diperlukan. | Memahami versi antarmuka terbaru atau menyiapkan deployment. |
 | [APP_GUIDE.md](APP_GUIDE.md) | Langkah penggunaan empat halaman, input CSV, arti hasil, dan kendala umum. | Ingin mencoba aplikasi atau memahami output prediksi. |
 | [BUSINESS_CASE.md](BUSINESS_CASE.md) | Masalah, pengguna, skenario prediksi, keputusan desain, dan rancangan pilot. | Menilai tujuan dan manfaat yang ingin dicapai. |
 | [DATA_CARD.md](DATA_CARD.md) | Asal dataset, snapshot, checksum, label target, lisensi, dan batas generalisasi. | Memahami data dan kelayakan penggunaannya. |

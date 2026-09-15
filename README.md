@@ -13,7 +13,7 @@
 
 Studi kasus Data Science untuk memprediksi status studi mahasiswa menggunakan data pendaftaran dan capaian semester pertama, serta membantu dosen wali menentukan profil yang perlu ditinjau lebih lanjut.
 
-[**Mulai membaca**](#mulai-dari-sini) · [**Lihat notebook**](notebook.ipynb) · [**Panduan aplikasi**](docs/APP_GUIDE.md) · [**Peta file**](docs/REPOSITORY_GUIDE.md) · [**Dokumentasi**](docs/README.md)
+[**Mulai membaca**](#mulai-dari-sini) · [**Lihat notebook**](notebook.ipynb) · [**Panduan aplikasi**](docs/APP_GUIDE.md) · [**Pembaruan antarmuka**](docs/UI_CHANGELOG.md) · [**Peta file**](docs/REPOSITORY_GUIDE.md) · [**Dokumentasi**](docs/README.md)
 
 </div>
 
@@ -102,10 +102,12 @@ Tidak adanya nilai kosong eksplisit tidak berarti semua informasi lengkap: sumbe
 
 | Halaman | Yang dapat dilakukan | Cara membaca hasil |
 |---|---|---|
-| **Gambaran Data** | Memfilter program studi dan usia, melihat komposisi status, capaian semester 1, dan proporsi dropout | Ringkasan historis mengikuti filter, bukan pemantauan mahasiswa aktif |
-| **Prediksi Individu** | Mengisi 14 fitur atau menggunakan contoh sintetis, melihat probabilitas tiga kelas, saran pendampingan, dan mengunduh CSV | Status paling mungkin dan kategori peninjauan adalah dua keluaran berbeda |
-| **Prediksi Batch** | Mengunggah CSV UTF-8, memvalidasi semua baris, memprediksi, dan mengunduh hasil | Batas 10 MB dan 10.000 baris; satu baris tidak valid menghentikan seluruh batch |
-| **Kinerja Model** | Melihat metrik, grafik evaluasi, dan keterbatasan | Performa historis tidak menjamin hasil pada populasi baru |
+| **Gambaran Data** | Filter program/usia dan reset, diagram donat, grafik capaian interaktif, minimum ukuran kelompok, dan ekspor ringkasan program | Ringkasan historis mengikuti filter, bukan pemantauan mahasiswa aktif |
+| **Prediksi Individu** | Formulir bertab di samping panel hasil, 14 fitur, preset sintetis, probabilitas tiga kelas, saran, dan unduhan CSV | Status paling mungkin dan kategori peninjauan adalah dua keluaran berbeda |
+| **Prediksi Batch** | Unggah CSV atau gunakan contoh sintetis, filter tindakan, urutkan peluang Dropout, dan unduh seluruh/hasil terfilter | Batas 10 MB dan 10.000 baris; satu baris tidak valid menghentikan seluruh batch |
+| **Kinerja Model** | Tab hasil evaluasi, seleksi model, diagnostik, dan batas penggunaan dengan grafik interaktif | Performa historis tidak menjamin hasil pada populasi baru |
+
+Antarmuka menggunakan tema terang dengan aksen teal, panel yang konsisten, dan grafik Altair dengan tooltip. Aturan CSS untuk layar kecil disertakan; tampilan browser belum dapat diverifikasi pada lingkungan pembaruan ini.
 
 Formulir dan CSV menggunakan aturan validasi yang sama. Kategori harus sesuai kamus, nilai akademik mengikuti skala sumber, dan relasi jumlah unit diperiksa. Unggahan diproses dalam sesi aplikasi dan tidak ditulis ke file project.
 
@@ -240,9 +242,11 @@ Jika muncul error versi model, instal versi dari `requirements.txt`. Jika valida
 
 ## Reproduksi dan pengujian
 
-Notebook yang disertakan berisi 41 sel, termasuk 28 sel kode yang sudah dieksekusi pada pembangunan paket awal. [Catatan verifikasi awal](docs/VALIDATION.md) membedakan pemeriksaan pada lingkungan pembuat paket dan pemeriksaan berikutnya di GitHub.
+Notebook yang disertakan berisi 41 sel, termasuk 28 sel kode yang sudah dieksekusi pada pembangunan paket awal. [Catatan verifikasi paket](docs/VALIDATION.md) memuat pemeriksaan lokal dan batasnya; bukti CI historis dicatat secara terpisah.
 
 Workflow [Project quality, run 34809204916](https://github.com/mpnabil95/student-success-prediction/actions/runs/34809204916) pada commit `6a5c888` telah **berhasil**, termasuk instalasi dependensi, pembangunan notebook dan dokumen, unit/integration tests, serta validasi format notebook. Ini adalah bukti untuk commit tersebut, bukan jaminan seluruh perubahan berikutnya. Cakupan tes dijelaskan di [tests/README.md](tests/README.md).
+
+Pembaruan antarmuka diuji lokal dengan **23 tes lulus tanpa skip**. Rincian perubahan, kompatibilitas, dan batas pemeriksaan visual ada pada [UI_CHANGELOG.md](docs/UI_CHANGELOG.md).
 
 Dengan environment aktif dan dependensi notebook terpasang:
 

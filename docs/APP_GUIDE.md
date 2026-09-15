@@ -12,18 +12,20 @@ Halaman ini menampilkan data historis sumber, bukan catatan mahasiswa aktif atau
 2. Sesuaikan rentang usia saat masuk.
 3. Baca jumlah mahasiswa, jumlah/proporsi setiap status, capaian semester 1, dan proporsi dropout per program studi.
 4. Perhatikan jumlah mahasiswa dalam setiap kelompok. Persentase dari kelompok kecil lebih mudah berubah.
+5. Gunakan Minimal mahasiswa per program untuk menyaring tabel berdasarkan ukuran kelompok. Filter ini hanya memengaruhi tabel program dan ekspornya, bukan kartu statistik atau grafik di atas.
+6. Klik Unduh ringkasan program untuk mengekspor tabel yang terlihat, atau Reset filter untuk mengembalikan program dan usia ke seluruh snapshot.
 
 Persentase status memakai jumlah mahasiswa setelah filter. Proporsi dropout per program memakai jumlah mahasiswa pada program tersebut setelah filter. Filter dashboard tidak melatih ulang model atau mengubah ambang peninjauan.
 
 ## 2. Prediksi Individu
 
 1. Pilih contoh sintetis, lalu klik **Terapkan contoh**, atau isi formulir sendiri.
-2. Lengkapi bagian Pendaftaran dan Semester 1 menggunakan skala serta kategori sumber.
+2. Lengkapi tab Pendaftaran dan Semester 1 menggunakan skala serta kategori sumber. Panel hasil berada di samping formulir pada layar lebar.
 3. Klik **Lihat hasil peninjauan**.
 4. Baca status paling mungkin, probabilitas Dropout, ambang, kategori tindakan, dan saran pendampingan.
 5. Bila perlu, klik **Unduh hasil individu** untuk menyimpan `student_prediction.csv`.
 
-Mengubah nilai formulir memerlukan pengiriman ulang melalui tombol prediksi agar hasil diperbarui. Profil sintetis hanya membantu demonstrasi input, bukan mahasiswa nyata.
+Mengubah nilai formulir memerlukan pengiriman ulang melalui tombol prediksi agar hasil diperbarui. Hasil yang masih terlihat adalah snapshot pengiriman terakhir. Menerapkan preset menghapus hasil lama. Input tidak valid setelah submit juga menghapus hasil sebelumnya. Profil yang sudah dikirim dipulihkan saat kembali dari halaman lain. Profil sintetis hanya membantu demonstrasi input, bukan mahasiswa nyata.
 
 ### Dua keluaran yang berbeda
 
@@ -36,14 +38,15 @@ Sebagai ilustrasi dengan threshold 0,19: Graduate 0,55, Dropout 0,25, Enrolled 0
 
 ## 3. Prediksi Batch
 
-Gunakan untuk beberapa profil sekaligus.
+Gunakan untuk beberapa profil sekaligus. Pilihan Contoh sintetis memungkinkan percobaan tiga profil tanpa mengunggah file; pilih Unggah CSV untuk memakai file sendiri. Mengganti sumber atau isi file akan menghapus hasil sebelumnya.
 
 1. Unduh template pada halaman aplikasi atau gunakan [students_template.csv](../examples/students_template.csv).
 2. Buat salinan untuk inputmu; pertahankan 14 nama kolom pada template.
 3. Simpan dalam CSV UTF-8 dengan pemisah koma atau titik koma. Gunakan titik untuk desimal.
 4. Unggah file, lalu klik **Validasi dan prediksi**.
 5. Jika ada error, perbaiki seluruh baris yang disebutkan dan unggah ulang.
-6. Jika berhasil, baca jumlah profil yang perlu ditinjau, lalu klik **Unduh seluruh hasil** untuk menyimpan `batch_predictions.csv`.
+6. Jika berhasil, baca jumlah profil yang perlu ditinjau. Tabel dapat difilter berdasarkan tindakan dan selalu diurutkan dari peluang Dropout tertinggi; nomor source_row tetap mengacu pada input.
+7. **Unduh seluruh hasil** menyimpan `batch_predictions.csv` dalam urutan input. **Unduh tampilan terfilter** menyimpan `batch_predictions_filtered.csv` sesuai filter dan urutan tabel. Tombol kedua nonaktif bila tidak ada profil dalam filter.
 
 Batas: **10 MB dan 10.000 baris data**. Semua baris harus valid; aplikasi tidak diam-diam melewatkan baris yang salah. Nama kolom ganda, kolom wajib hilang, nilai kosong, kategori tidak dikenal, dan relasi akademik tidak sah dapat menyebabkan penolakan.
 
@@ -82,7 +85,7 @@ Unggahan tidak disimpan sebagai file di repository oleh aplikasi. Identitas pada
 
 ## 4. Kinerja Model
 
-Halaman ini menunjukkan metrik evaluasi dan grafik dari eksperimen yang disertakan. Nilainya tidak dihitung ulang dari file batch yang diunggah.
+Halaman ini memiliki tab Hasil evaluasi, Pemilihan model, Diagnostik, dan Batas penggunaan. Grafik interaktif menampilkan tooltip saat diarahkan dengan pointer. Halaman menunjukkan metrik evaluasi dan grafik dari eksperimen yang disertakan. Nilainya tidak dihitung ulang dari file batch yang diunggah.
 
 - **Accuracy/macro F1** menilai prediksi tiga kelas.
 - **Recall/precision peninjauan** menilai keputusan menandai berdasarkan probabilitas Dropout.

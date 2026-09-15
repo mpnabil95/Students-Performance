@@ -9,7 +9,7 @@ Tes otomatis memeriksa perilaku tertentu dengan input yang hasilnya dapat diperi
 | File atau folder | Fungsi | Kapan dibuka |
 |---|---|---|
 | [test_contracts.py](test_contracts.py) | 15 tes data/artefak: input invalid, domain, relasi akademik, CSV, preset, threshold, split, dan konsistensi inference. | Memeriksa aturan inti atau menambahkan tes untuk perubahan perilaku model/input. |
-| [test_streamlit.py](test_streamlit.py) | 1 tes AppTest: halaman awal, navigasi halaman lain, dan prediksi individu. | Memeriksa aplikasi dapat dimuat dan alur individu dasar berjalan. |
+| [test_streamlit.py](test_streamlit.py) | 8 tes AppTest: navigasi, filter kosong/reset, kesetaraan inference, penolakan input, pergantian preset, pemulihan profil, batch sintetis/filter, dan pergantian sumber batch. | Memeriksa aplikasi dapat dimuat dan alur individu dasar berjalan. |
 
 
 ## Menjalankan
@@ -39,6 +39,10 @@ Bukti di atas berlaku untuk commit tersebut. Status terbaru dapat diperiksa di [
 
 ## Yang belum dicakup
 
-Tes AppTest belum menguji unggahan dan unduhan batch dari browser sesungguhnya, tata letak pada berbagai ukuran layar, atau deployment publik. Builder menjalankan kode notebook melalui Python; validasi nbformat memeriksa format dan bukan eksekusi ulang melalui kernel Jupyter terpisah. CI juga belum menjalankan audit kerentanan dependensi.
+Tes AppTest memeriksa batch sintetis dan perubahan state, tetapi belum menguji pemilih file unggahan dan unduhan dari browser sesungguhnya, tata letak pada berbagai ukuran layar, atau deployment publik. Builder menjalankan kode notebook melalui Python; validasi nbformat memeriksa format dan bukan eksekusi ulang melalui kernel Jupyter terpisah. CI juga belum menjalankan audit kerentanan dependensi.
 
 [Workflow](../.github/workflows/README.md) · [Catatan paket awal](../docs/VALIDATION.md) · [Batas model](../docs/MODEL_CARD.md)
+
+## Verifikasi pembaruan antarmuka
+
+Pada 14 September 2026, suite lokal terdiri dari **23 tes: 15 kontrak data/model dan 8 tes antarmuka**. Seluruhnya lulus tanpa skip. Keberhasilan CI 16 tes pada bagian historis tetap berlaku untuk commit lamanya; perubahan antarmuka ini perlu melewati CI lagi setelah di-commit. [Catatan UI](../docs/UI_CHANGELOG.md) memuat cakupan dan batas verifikasi.

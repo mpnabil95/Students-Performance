@@ -7,15 +7,13 @@
     "execution_method": "sequential ordinary Python; real stdout, DataFrame and matplotlib outputs"
   },
   "python_syntax": "all source files parsed",
-  "tests_run": 16,
-  "passed": 15,
-  "skipped": 1,
+  "tests_run": 23,
+  "passed": 23,
+  "skipped": 0,
   "failures": 0,
   "errors": 0,
-  "skip_reasons": [
-    "Streamlit not installed in this runtime"
-  ],
-  "streamlit_installed": false,
+  "skip_reasons": [],
+  "streamlit_installed": true,
   "source_hashes_match_manifest": true,
   "deployment": "not changed or independently verified",
   "original_metabase": "preserved in archived branch; not restored in this package"
