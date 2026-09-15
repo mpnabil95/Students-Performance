@@ -1,4 +1,5 @@
 """UI regressions: navigation, validation, input state, and batch source changes."""
+import json
 import unittest
 from pathlib import Path
 import pandas as pd
@@ -36,6 +37,27 @@ class StreamlitIntegrationTests(unittest.TestCase):
         app.sidebar.radio[0].set_value('Prediksi Individu').run()
         self.click(app, 'Lihat hasil peninjauan')
         self.assertTrue(any(m.label == 'Probabilitas Dropout' for m in app.metric))
+
+    def test_chart_padding_is_compatible_with_streamlit_renderer(self):
+        # AppTest does not run the browser renderer. Check its actual serialized
+        # input: Streamlit 1.49.1 assigns spec.padding.bottom, so a scalar fails.
+        app = self.app()
+        for page in ['Gambaran Data', 'Prediksi Individu', 'Kinerja Model']:
+            app.sidebar.radio[0].set_value(page).run()
+            if page == 'Prediksi Individu':
+                self.click(app, 'Lihat hasil peninjauan')
+            self.assertEqual(len(app.exception), 0)
+            charts = app.get('arrow_vega_lite_chart')
+            self.assertGreater(len(charts), 0, page)
+            for index, element in enumerate(charts):
+                with self.subTest(page=page, chart=index):
+                    spec = json.loads(element.proto.spec)
+                    padding = spec.get('padding')
+                    self.assertIsInstance(padding, dict)
+                    self.assertTrue({'left', 'right', 'top', 'bottom'} <= padding.keys())
+                    for side in ['left', 'right', 'top', 'bottom']:
+                        self.assertIsInstance(padding[side], (int, float))
+                        self.assertGreaterEqual(padding[side], 0)
 
     def test_overview_empty_filter_and_reset(self):
         app = self.app()

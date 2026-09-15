@@ -75,7 +75,12 @@ def note(title, body, tone='teal'):
 
 
 def chart(spec, height=280):
-    styled = (spec.properties(height=height, padding=12)
+    # Streamlit 1.49 adjusts spec.padding.bottom in its JavaScript renderer.
+    # A scalar is valid Vega-Lite but incompatible with that renderer path.
+    styled = (spec.properties(
+                  height=height,
+                  padding={"left": 12, "right": 12, "top": 12, "bottom": 12},
+              )
               .configure_view(strokeWidth=0)
               .configure_axis(gridColor='#edf1f4', domain=False, tickSize=0,
                               labelColor='#5d6b7a', titleColor='#5d6b7a', labelPadding=8,
